@@ -1,0 +1,40 @@
+.car-search-box {
+    div[role="tablist"] {
+        button:hover {
+            background-color: #d9f99d;
+            cursor: grab;
+        }
+        button[data-state="active"] {
+            background-color: rgb(25, 111, 61); /*#3f6212;*/
+            color: #fff;
+        }
+    } 
+}
+
+
+
+.car-search-box .tabs{
+    justify-content: center;
+    background: unset;
+    border: unset;
+    box-shadow: none;
+}
+.car-search-box .tab-content{
+    margin-top: 30px;
+}
+.car-search-box .tabs-box .tab {
+    font-size: 1.2em;
+    background-color: #f8f9f9;
+}
+.car-search-box .tabs-box .tab.tab-ncf {
+    border-radius: 3px 0px 0px 3px;
+}
+.car-search-box .tabs-box .tab.tab-scf {
+    border-radius: 0px 3px 3px 0px;
+}
+
+.car-search-box .tabs-box :is(input:checked) {
+    background-color: #78e14a;
+}
+
+

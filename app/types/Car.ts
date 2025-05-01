@@ -1,0 +1,63 @@
+
+export type Car = {
+    id: string;
+    make: string;
+    model: string;
+    category: string;
+    trimGrade: string;
+    drive: string;
+    energyType: string;
+    fuelType: string;
+    range: number;
+    makeYear: number;
+    state: string;
+    kilometers: number;
+    driveAwayPrice: number;
+    costPerYear: number;
+    scheduledMaintenance: number;
+    petrolCost: number;
+    electricityCost: number;
+    registrationFees: number;
+    insuranceCosts: number;
+    tyres: number;
+    tyreChanges: number;
+    financeNoTradeIn: number;
+    totalCostOfOwnership: number;
+    priceOfConvenience: number;
+    driveAwayPriceFinance: number;
+    dealerCashIncentives: number;
+    totalCOO: number;
+    depreciationDollars: number;
+    depreciationPercent: number;
+    tradeInValue: number;
+    livingCostSavings: number;
+    fiveYearSavings: number;
+    annualSavings: number;
+    monthlySavings: number;
+    weeklySavings: number;
+    financeWithTradeIn: number;
+    carbScore: number;
+    doors: number;
+    noFinance: boolean;
+    financeCosts: number;
+    loanAmount: number;
+    interestRate: number;
+    loanTerm: number;
+    balloonPayment: number;
+    loanEstablishmentFees: number;
+    adminFees: number;
+    totalCOOF: number;
+    offGridEnergyPercent: number;
+    carbonEmissionsFiveYears: number;
+    carbonEmissionsAnnual: number;
+    coreRatingCOO: number;
+    coreRatingCOOF: number;
+    coreRatingAfterResaleCOO: number;
+    coreRatingAfterResaleCOOF: number;
+    //data for cars rating
+    coo: number;
+    co2: number;
+    savings: number;
+    rating: number;
+    starRating?: number; // Out of 5 stars
+  }
