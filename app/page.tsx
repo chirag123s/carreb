@@ -1,59 +1,257 @@
 'use client'; // Add this for client components in Next.js 13+
 
 import React from 'react';
-import { useState } from "react"
+
+import { useEffect, useState } from "react"
 import Image from 'next/image';
 import Link from 'next/link'; // Next.js Link component
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import Head from 'next/head';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import VehicleDetailsModal from "../app/components/VehicleDetailsModal"; // Import the modal component
+import { boolean } from 'zod';
+import { getCookie } from "@/lib/utils";
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
-
+  const router = useRouter();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [isShowNotificationBar, setShowNotificationBar] = useState(false)
   const isShowPricingPlans = false
   const isShowStats = false
   const isShowHowItWorks = false
+  
+  // States for the form
+  const [saveMoney, setSaveMoney] = useState(false)
+  const [greenerCar, setGreenerCar] = useState(false)
+  const [goodAllRounder, setGoodAllRounder] = useState(false)
+  const [hasCar, setHasCar] = useState<string>("") //useState<string | null>(null)
+  const [budget, setBudget] = useState<string>("")
+  const [selectedState, setSelectedState] = useState<string>("")
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  
+  const [formData, setFormData] = useState({
+    saveMoney: false,
+    greenerCar: false,
+    goodAllRounder: false,
+    budget: '',
+    state: '',
+    haveCar: '',
+  });
+
+  // Australian states
+  const states = [
+    "NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"
+  ]
+  
+  // Function to handle vehicle details submission
+  const handleVehicleDetailsSubmit = (data: any) => {
+    console.log("Vehicle details:", data)
+    setIsModalOpen(false)
+    // Here you would typically process the data or send it to an API
+  } 
+  
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      async function fetchCarMatch() {
+          try {
+              const postData = {
+                  save_money: saveMoney,
+                  greener_car: greenerCar,
+                  good_all_rounder: goodAllRounder,
+                  budget: budget,
+                  state: selectedState,
+                  have_car: false,
+                  make: "",
+                  model: "",
+                  year: "",
+                  engine_type: ""
+              }
+              const response = await fetch(`${apiUrl}/car/match/`, {
+                  method: "POST",
+                  credentials: 'include', // Importa
+                  headers: {
+                      "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify( postData)
+              });
+              const data = await response.json();
+              
+              if (response.ok) {
+                  //const uniqueId = getCookie('crb_uid');
+                  router.push('/smart-car-finder/?sid='+data.crb_uid);
+              } else {
+                  console.error(`Error: ${data.detail || "Failed to get car mat."}`);
+              }
+          } catch (error) {
+              console.error("Error fetching car match:", error);
+          }
+      }
+      if (hasCar == 'no') {
+        fetchCarMatch();
+      }
+  };
+
+  useEffect(() => {
+    /*const state = selectedState
+    const whatMatterSaveMoney = saveMoney
+    const whatMatterGreenerCar = greenerCar
+    const whatMatterGoodAllRounder = goodAllRounder
+    const setBudget = budget
+    const selState = state*/
+
+    setFormData({
+      saveMoney: saveMoney,
+      greenerCar: greenerCar,
+      goodAllRounder: goodAllRounder,
+      budget: budget,
+      state: selectedState,
+      haveCar: hasCar
+    })
+  }, [isModalOpen]);
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="flex flex-col">
+      {isModalOpen && (
+        <VehicleDetailsModal 
+          onSubmit={handleVehicleDetailsSubmit} 
+          onClose={() => setIsModalOpen(false)} 
+          formData={formData}
+        />
+      )}
+      
       {isShowNotificationBar && (
       <div className="w-full bg-zinc-800 text-white py-1 px-4 text-center text-xs sm:text-sm">
           Notifications for discounts and other things can be shown here
       </div>
       )}
 
-      {/* Hero Section */}
-      <section className="bg-slate-100 min-h-[350px]">
-        <div className="container mx-auto px-4 sm:px-6 lg:grid grid-cols-1 md:grid-cols-2 py-8 md:py-10 homepage-banner">
-          <div className="md:flex items-center justify-center col-l">
-            <div className="w-full relative rounded-lg">
-              <h1 >The Sustainable Way to Your Next Car</h1>
-              <p className="text-2xl mt-6">Discover how you can minimize your environmental impact without sacrificing performance or affordability</p>
-              <div className="">
-                <Button asChild className="btn-dark-green mt-6 text-xl pt-6 pb-6 min-w-64">
-                  <Link href="/car-search">Find a car</Link>
-                </Button>
-              </div>
+      {/* Car Preferences Section - ADDED FROM SCREENSHOT */}
+      <section className="bg-slate-100 min-h-[70vh] py-10">
+        <div className="container mx-auto px-10 lg:grid md:grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex flex-col justify-center">
+            <h2 className="text-4xl font-bold mb-6">
+              <span className="text-green-500 ">Carreb takes the</span>
+              <span className="text-green-500 block">complexity out of</span>
+              <span className="text-green-500 block">choosing your new car.</span>
+            </h2>
+            
+            <div className="mt-8">
+
+              <form onSubmit={handleSubmit} className="mt-5">
+                <h3 className="text-xl font-semibold mb-4">What matters the most to you?</h3>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Checkbox 
+                      id="save-money" 
+                      checked={saveMoney}
+                      onCheckedChange={(checked) => setSaveMoney(checked as boolean)}
+                      className="h-5 w-5 border-2 border-gray-300"
+                    />
+                    <label htmlFor="save-money" className="text-lg cursor-pointer">I want to save money</label>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Checkbox 
+                      id="greener-car" 
+                      checked={greenerCar}
+                      onCheckedChange={(checked) => setGreenerCar(checked as boolean)}
+                      className="h-5 w-5 border-2 border-gray-300"
+                    />
+                    <label htmlFor="greener-car" className="text-lg cursor-pointer">I want a greener car</label>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Checkbox 
+                      id="all-rounder" 
+                      checked={goodAllRounder}
+                      onCheckedChange={(checked) => setGoodAllRounder(checked as boolean)}
+                      className="h-5 w-5 border-2 border-gray-300"
+                    />
+                    <label htmlFor="all-rounder" className="text-lg cursor-pointer">I want a good all-rounder</label>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 mt-6">
+                  <div className="w-1/2">
+                    <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
+                      Budget
+                    </label>
+                    <Input
+                      id="budget"
+                      type="number"
+                      placeholder="Enter your budget"
+                      value={budget}
+                      onChange={(e) => setBudget(e.target.value)}
+                      className="rounded-md border-gray-300"
+                    />
+                  </div>
+                  <div className="w-1/2">
+                    <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                      State
+                    </label>
+                    <Select value={selectedState} onValueChange={setSelectedState}>
+                      <SelectTrigger className="rounded-md border-gray-300">
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {states.map((state) => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="mt-8">
+                  <h3 className="text-xl font-semibold mb-4">Do you have a car?</h3>
+                  <div className="flex gap-3">
+                    <button 
+                      className={`rounded-full px-8 py-2 font-medium ${hasCar == 'yes' ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-green-400'}`}
+                      onClick={() => {
+                        setHasCar('yes');
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      YES
+                    </button>
+                    <button 
+                      type="submit"
+                      className={`rounded-full px-8 py-2 font-medium ${hasCar == 'no' ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-green-400'}`}
+                      onClick={() => {
+                        setHasCar('no');
+                      }}
+                    >
+                      NO
+                    </button>
+                  </div>
+                </div>
+                
+              </form>
             </div>
           </div>
-          <div className="lg:flex md:flex flex-col items-center justify-center space-y-4 md:space-y-6 lg:p-4 md:p-4 sm:p-8 col-r">
-            <h3 className="uppercase text-center font-medium max-w-60-pcnt">The biggest car buying mistake</h3>
+          
+          <div className="flex items-right justify-center lg:justify-end mt-8 md:mt-0">
             <Image
-              src="/images/header-cars.png"
-              alt="Cars"
-              width={200}
-              height={200}
-              className="w-auto w-full"
+              src="/images/happy-car-owner.jpg" // Assuming this path for the image
+              alt="Happy car owner receiving keys"
+              width={500}
+              height={500}
+              className="rounded-lg object-cover"
               priority
             />
-            <h3 className="text-thin">Ignoring Total <span className="carreb-green">Cost of Ownership</span></h3>
-            <p>Many buyers focus only on the price or monthly payment, ignoring the total cost of ownership &mdash; insurance, maintenance, fuel, and depreciation.  A cheaper car upfront can cost more long-term.</p>
           </div>
         </div>
       </section>
-
-      {/* Features Section */}
+{/*
+      {/* Features Section /}
       <section className="py-8 sm:py-12 bg-white">
         <div className="container mx-auto px-4 sm:px-6">
           <h2 className="text-3xl font-bold text-center">Discover the Smarter Way to Choose Your Car</h2>
@@ -106,9 +304,9 @@ export default function HomePage() {
             </div>
             
             <div className="bg-slate-100 p-4 sm:p-6 rounded-md shadow-sm hover:shadow-md transition-shadow duration-200 transform">
-              <h3 className="font-bold mb-2 text-base sm:text-lg text-2xl">See the Clear CARS Rating</h3>
+              <h3 className="font-bold mb-2 text-base sm:text-lg text-2xl">See the Clear CORE&trade; Rating</h3>
               <div className="grid grid-cols-2 mt-8 gap-4 ">
-                <p>Our unique CARS rating system simplifies complex data, giving you an easy-to-understand score for cost of ownership and environmental impact.</p>
+                <p>Our unique CORE&trade; Rating system simplifies complex data, giving you an easy-to-understand score for cost of ownership and environmental impact.</p>
                 <Image
                   src="/images/car-parts-1.png"
                   alt="Cars"
@@ -123,6 +321,27 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+{/*
+      <section className="py-8 sm:py-12 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:grid md:grid grid-cols-2 gap-x-40">
+          <div>
+            <h2 className="text-4xl lg:text-5xl font-extrabold leading-snug">Your Trusted Partner for Smarter Car Choices</h2>
+            <p className="mt-10">Carreb provides accurate and reliable vehicle comparisons by sourcing data from trusted industry sources and government-backed databases, including the Green Vehicle Guide. Our AI-powered analysis ensures you have the information you need to make confident decisions. <a href="/" title="Go to the Know more page" className="hover:text-sky-400 underline decoration-sky-400">Click to Know more</a></p>
+          </div>
+          <div>
+            <Image
+              src="/images/car-brands-1.png"
+              alt="Cars"
+              width={200}
+              height={200}
+              className="w-auto w-full"
+              priority
+            />
+          </div>
+        </div>
+
+      </section>
+/}
 
       <section className="py-8 sm:py-12 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:grid md:grid grid-cols-2 gap-x-40">
@@ -143,7 +362,7 @@ export default function HomePage() {
         </div>
 
       </section>
-
+*/}
 
       {/* Pricing Section */}
       {isShowPricingPlans && (

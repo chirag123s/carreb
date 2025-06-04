@@ -1,5 +1,5 @@
 import React from 'react'
-import RangeSlider from './RangeSlider'
+/*import RangeSlider from './RangeSlider'*/
 
 const FormSmartCarFinder = () => {
   return (
@@ -7,7 +7,7 @@ const FormSmartCarFinder = () => {
         <h3>Let us help find your new car</h3>
         <form className='pt-4'>
             <div>
-                <RangeSlider minLimit={0} maxLimit={100} />
+                { /*<RangeSlider minLimit={0} maxLimit={100} />*/ }
             </div>
             <div className='lg:grid grid-cols-4 gap-4 pt-4'>
                 <select defaultValue="State" className="select">

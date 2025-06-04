@@ -1,0 +1,21 @@
+/*.hero {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+  
+    background-image: 
+      linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.1) 60%, rgba(0, 0, 0, 0) 100%),
+      url('https://source.unsplash.com/1600x900/?nature'); /* Replace with your image * /
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  .hero-content {
+    z-index: 1;
+  }
+    */

@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Form, FormControl, FormItem, FormLabel, FormField } from "@/components/ui/form"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card"  
-//import { Checkbox } from "@/components/ui/checkbox"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -12,22 +12,90 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import Link from "next/link";
+import Image from "next/image";
+import { cn } from "@/lib/utils"
 
 const FormNewCarFinder = () => {
-    const [states, setStates] = useState([]);
+
+    type Variant = {
+        variant: string;
+        car_model_id: string;
+        // add more fields as needed
+    };
+    type VariantResponse = {
+        variants: Record<string, Variant>;
+    };
+    
+    type Series = {
+        series: string;
+        car_model_id: string;
+        // add more fields as needed
+    };
+    type SeriesResponse = {
+        series: Record<string, Series>;
+    };
+    
+    type Car = {
+        key: string;
+        name: string;
+    }
+    type Model = {
+        car_model_id: string;
+        family: string;
+    }
+    type State = {
+        state_id: string;
+        short_name: string;
+    }
+    type Match = {
+        car_model_id: string;
+        make: string;
+        family: string;
+        variant: string;
+        series: string;
+        year: string;
+        style: string;
+        engine: string;
+        cc: string;
+        size: string;
+        transmission: string;
+        cylinder: string;
+    }
+
+
+    const [states, setStates] = useState<State[]>([]);
     const [selectedState, setSelectedState] = useState("");
-    const [cars, setCars] = useState({ popular: [], all: [] });
+    /*const [cars, setCars] = useState({ popular: [], all: [] });*/
+    const [cars, setCars] = useState<{ popular: Car[], all: Car[] }>({
+        popular: [],
+        all: []
+    });
     const [selectedCar, setSelectedCar] = useState("");
-    const [carModels, setCarModels] = useState([]); //useState<CarModelData | []>([]); //
+    const [carModels, setCarModels] = useState<Model[]>([]); //useState<CarModelData | []>([]); //*/
     const [selectedModel, setSelectedModel] = useState("");
-    const [carVariants, setCarVariants] = useState([]); 
-    const [selectedVariant, setSelectedVariant] = useState("");
-    const [carSeries, setCarSeries] = useState([]); 
-    const [selectedSeries, setSelectedSeries] = useState("");
-    const [carMatches, setCarMatches] = useState([]);
+    
+    const [selectedCarMatch, setSelectedCarMatch] = useState("");
+    
+    /*const [carVariants, setCarVariants] = useState([]); 
+    const [selectedVariant, setSelectedVariant] = useState("");*/
+    const [carVariants, setCarVariants] = useState<Variant[]>([]);
+    /*const [selectedVariant, setSelectedVariant] = useState<string | null>(null);*/
+    const [selectedVariant, setSelectedVariant] = useState<string | undefined>(undefined);
+
+
+    /*const [carSeries, setCarSeries] = useState([]); 
+    const [selectedSeries, setSelectedSeries] = useState("")*/
+    const [carSeries, setCarSeries] = useState<Series[]>([]);
+    /*const [selectedSeries, setSelectedSeries] = useState<string | null>(null);*/
+    const [selectedSeries, setSelectedSeries] = useState<string | undefined>(undefined);
+
+    const [carMatches, setCarMatches] = useState<Match[]>([]);
     const [carCompare, setCarCompare] = useState([]);
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    const isLoggedIn = false;
 
     useEffect(() => {
 
@@ -96,7 +164,7 @@ const FormNewCarFinder = () => {
                         },
                         body: JSON.stringify( {make: selectedCar, model: selectedModel})
                     });
-                    const data = await response.json();
+                    /*const data = await response.json();
                     
                     if (response.ok) {
                         setCarVariants(data.variants);
@@ -107,6 +175,20 @@ const FormNewCarFinder = () => {
                     } else {
                         console.error(`Error: ${data.detail || "Failed to get car variant."}`);
                     }
+                        */
+                    const data: VariantResponse = await response.json();
+
+                    if (response.ok) {
+                        const variantsArray = Object.values(data.variants);
+                        setCarVariants(variantsArray);
+
+                        if (variantsArray.length === 1) {
+                            setSelectedVariant(variantsArray[0].variant);
+                        }
+                    } else {
+                        console.error(`Error: ${"detail" in data ? data.detail : "Failed to get car variant."}`);
+                    }
+
                 } catch (error) {
                     console.error("Error fetching car variant:", error);
                 }
@@ -117,7 +199,7 @@ const FormNewCarFinder = () => {
 
     useEffect(() => {
         if (selectedCar && selectedModel && selectedVariant) {
-            async function fetchCarSeries() {
+            async function fetchCarSeries() {                
                 try {
                     const response = await fetch(`${apiUrl}/car/series/`, {
                         method: "POST",
@@ -126,7 +208,7 @@ const FormNewCarFinder = () => {
                         },
                         body: JSON.stringify( {make: selectedCar, model: selectedModel, variant: selectedVariant})
                     });
-                    const data = await response.json();
+                    /*const data = await response.json();
                     
                     if (response.ok) {
                         setCarSeries(data.series);
@@ -136,6 +218,18 @@ const FormNewCarFinder = () => {
                         }
                     } else {
                         console.error(`Error: ${data.detail || "Failed to get car series."}`);
+                    }*/
+                    const data: SeriesResponse = await response.json();
+
+                    if (response.ok) {
+                        const seriesArray = Object.values(data.series);
+                        setCarSeries(seriesArray);
+
+                        if (seriesArray.length === 1) {
+                            setSelectedVariant(seriesArray[0].series);
+                        }
+                    } else {
+                        console.error(`Error: ${"detail" in data ? data.detail : "Failed to get car variant."}`);
                     }
                 } catch (error) {
                     console.error("Error fetching car series:", error);
@@ -164,12 +258,38 @@ const FormNewCarFinder = () => {
                         console.error(`Error: ${data.detail || "Failed to get car matches."}`);
                     }
                 } catch (error) {
-                    console.error("Error fetching car series:", error);
+                    console.error("Error fetching car matches:", error);
                 }
             }
             fetchCarMatches();
         }
     }, [selectedSeries]);
+
+    useEffect(() => {
+        if (selectedCarMatch) {
+            async function fetchCarSuggestions() {
+                try {
+                    const response = await fetch(`${apiUrl}/car/suggestions/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify( {car_id: selectedCarMatch})
+                    });
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        setCarCompare(data);
+                    } else {
+                        console.error(`Error: ${data.detail || "Failed to get car suggestions."}`);
+                    }
+                } catch (error) {
+                    console.error("Error fetching car suggestions:", error);
+                }
+            }
+            fetchCarSuggestions();
+        }
+    }, [selectedCarMatch]);
 
 
     const FormSchema = z.object({
@@ -202,7 +322,7 @@ const FormNewCarFinder = () => {
         resolver: zodResolver(FormSchema),
     })
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("Selected car:", selectedCar);
         console.log("Selected model:", selectedModel);
@@ -329,14 +449,14 @@ const FormNewCarFinder = () => {
                                 control={form.control}
                                 name="match_cars"
                                 render={({ field }) => (
-                                    <RadioGroup>
+                                    <RadioGroup onValueChange={setSelectedCarMatch}>
                                         {carMatches.map( (match) => (
-                                            <FormItem key={match.car_model_id} className="flex items-center space-x-3 space-y-0 mb-4">
+                                            <FormItem key={match.car_model_id} className="flex items-center space-x-3 space-y-0 mb-4 border-2 border-gray-100 rounded-md p-2  hover:bg-lime-50">
                                                 <FormControl>
                                                     <RadioGroupItem value={match.car_model_id}  className='p-2'/>
                                                 </FormControl>
                                                 <div>
-                                                    <FormLabel className="font-normal block hover:bg-gray-300 p-2">
+                                                    <FormLabel className="font-normal block p-2">
                                                         {match.make} {match.family} {match.variant} {match.series} {match.year}
                                                         <p className="text-sm text-muted-foreground">
                                                             {match.style}, {match.engine}, {match.cc}, {match.size}, {match.transmission}, {match.cylinder} 
@@ -354,7 +474,7 @@ const FormNewCarFinder = () => {
                     {(carCompare.length >= 1) &&
                         <div>
                             {carCompare.map( (car) => (
-                                <Card className={cn("w-[380px]", className)} {...props}>
+                                <Card>
                                     <CardHeader>
                                         <CardTitle>Notifications</CardTitle>
                                         <CardDescription>You have 3 unread messages.</CardDescription>
@@ -370,6 +490,7 @@ const FormNewCarFinder = () => {
                             ))}
                         </div>
                     }
+
 
                     <div className="w-full text-center p-8">
                         <Button type="submit">Search now</Button>

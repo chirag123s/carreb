@@ -150,7 +150,15 @@ h3 {
 
 p {
   font-family: Inter, sans-serif;
+  padding: initial;
+  margin: revert;
 }
+
+.padding-revert,
+.p-revert {
+  padding: revert !important;
+}
+
 
 .carreb-green {
   color: #78E14A;
@@ -158,7 +166,8 @@ p {
 
 .container {
   max-width: 1330px;
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 .header {
   background: var(--background);
@@ -298,8 +307,9 @@ main {
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
 }
 
-footer {
+footer li a:hover {
   /*background-color: #e9f7ef;*/
+  text-decoration: underline;
 }
 
 /* Responsive text utilities */

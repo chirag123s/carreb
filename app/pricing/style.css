@@ -1,0 +1,23 @@
+body main {
+  background-color: #f1f5f9;
+}
+
+.payment-frequencies button {
+  display: none;
+}
+.payment-frequencies label {
+  padding: .5em 1em;
+}
+.payment-frequencies label:hover {
+  background-color: rgb(34 197 94);
+}
+.payment-frequencies label.active {
+  background-color: rgb(34 197 94);
+}
+
+.card-pricing .grid {
+  grid-template-columns: 1fr .4fr;
+}
+.card-pricing .grid div:last-child{
+  text-align: center;
+}

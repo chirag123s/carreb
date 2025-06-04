@@ -1,0 +1,19 @@
+div[data-slot="accordion-content"] {
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-bottom: 4em;
+}
+
+.star-ratings svg {
+  display: inline-block;
+}
+
+table.bordered th,
+table.bordered td {
+  border: solid 1px rgb(203 213 225);
+  padding: 1em;
+}
+
+table.bordered th {
+  background-color: rgb(203 213 225);
+}

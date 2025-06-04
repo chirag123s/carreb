@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Image from "next/image"
-import { SocialLogin } from "../components/SocialLogin"
+/*import { SocialLogin } from "../components/SocialLogin"*/
 
 const registerFormSchema = z.object({
   firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
@@ -201,7 +201,7 @@ export default function RegisterPage() {
                     </Link>
                   </p>
                   
-                  <SocialLogin />
+                  {/*<SocialLogin />*/}
                 </CardFooter>
               </Card>
             </TabsContent>

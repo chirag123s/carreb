@@ -6,12 +6,12 @@ const RangeSlider = ({ minLimit = 0, maxLimit = 100 }) => {
   const [max, setMax] = useState(maxLimit);
 
   // Handle range input changes
-  const handleMinChange = (e) => {
+  const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(Number(e.target.value), max - 1);
     setMin(value);
   };
 
-  const handleMaxChange = (e) => {
+  const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.max(Number(e.target.value), min + 1);
     setMax(value);
   };
