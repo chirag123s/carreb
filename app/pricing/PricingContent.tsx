@@ -1,14 +1,15 @@
+// app/pricing/PricingContent.tsx (Updated to support sid)
 'use client'
 
 import React from 'react';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { FaSquareCheck, FaLock } from 'react-icons/fa6';
-import PaymentButton from '../components/PaymentButton'; // Import the PaymentButton component
+import PaymentButton from '../components/PaymentButton';
 
 // Define interface for pricing tier structure
 interface PricingTier {
@@ -34,9 +35,17 @@ interface PricingTier {
 
 const PricingTable: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedPaymentFrequency, setPaymentFrequencyValue] = useState('monthly');
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [searchId, setSearchId] = useState<string | null>(null);
+
+  // Get search ID from URL parameters
+  useEffect(() => {
+    const sid = searchParams.get('sid');
+    setSearchId(sid);
+  }, [searchParams]);
 
   // Define pricing tiers with added price values
   const PricingTiers: PricingTier[] = [
@@ -135,7 +144,7 @@ const PricingTable: React.FC = () => {
 
   const handlePaymentSuccess = (sessionId: string) => {
     console.log('Payment successful, session ID:', sessionId);
-    // You can handle post-payment success logic here
+    // Redirect will be handled by Stripe with sid parameter included
   };
 
   const handlePaymentError = (error: Error) => {
@@ -146,15 +155,36 @@ const PricingTable: React.FC = () => {
 
   const handlePaymentFrequencyChange = (value: string) => {
     setPaymentFrequencyValue(value);
-    console.log('Selected value:', value);
+  };
+
+  const handleFreeSignup = () => {
+    // For free tier, redirect to signup with search ID if available
+    const signupUrl = searchId 
+      ? `/signup?plan=starter-access&freq=free&sid=${searchId}`
+      : `/signup?plan=starter-access&freq=free`;
+    router.push(signupUrl);
   };
 
   return (
     <>
+      {/* Search ID indicator */}
+      {searchId && (
+        <section className="bg-green-50 border-b border-green-200">
+          <div className="container py-4">
+            <div className="text-center">
+              <p className="text-green-800 font-medium">
+                🎯 Complete your car search journey! Choose a plan to save your results and get full access to CarReb.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="container pt-12 pb-12 ">
         <h2 className="text-center text-4xl font-bold mb-4 text-teal-900">It's <span className="carreb-green">easy</span> & <span className="carreb-green">free</span> to get started</h2>
         <h3 className="text-center text-5xl font-bold mb-4 text-teal-900">The two things everybody love.</h3>
       </section>
+      
       <section className="container">
         <RadioGroup 
           className='flex gap-0 justify-center payment-frequencies'
@@ -173,6 +203,7 @@ const PricingTable: React.FC = () => {
           </div>
         </RadioGroup>
       </section>
+      
       <section className="container pt-6 pb-6 lg:grid lg:grid-cols-4 lg:gap-6">
         { PricingTiers.map( (pricing, index) => (
           <div key={index} className="card-pricing bg-white shadow-lg mb-6 ml-6 mr-6 pb-6 lg:ml-0 lg:mr-0">
@@ -195,8 +226,11 @@ const PricingTable: React.FC = () => {
             )}
             <div className="text-center">
               {pricing.monthlyPrice === 'FREE' ? (
-                <Button asChild className='bg-green-700 text-xl text-white font-normal'>
-                  <Link href={`/signup?plan=${pricing.slug}&freq=${selectedPaymentFrequency}`}>Get {pricing.shortName}</Link>
+                <Button 
+                  onClick={handleFreeSignup}
+                  className='bg-green-700 text-xl text-white font-normal'
+                >
+                  Get {pricing.shortName}
                 </Button>
               ) : (
                 <PaymentButton
@@ -205,7 +239,8 @@ const PricingTable: React.FC = () => {
                   metadata={{
                     plan: pricing.slug,
                     frequency: selectedPaymentFrequency,
-                    tier: pricing.shortName
+                    tier: pricing.shortName,
+                    search_uid: searchId, // Include search ID in payment metadata
                   }}
                   buttonText={`Get ${pricing.shortName}`}
                   buttonClassName="bg-green-700 text-xl text-white font-normal"

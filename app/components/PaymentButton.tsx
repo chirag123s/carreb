@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { createCheckoutSession } from '../services/paymentService';
 import { CheckoutSessionRequest } from '../types/Payment';
@@ -23,7 +24,7 @@ export default function PaymentButton({
   amount,
   productName,
   customerEmail,
-  metadata,
+  metadata = {},
   buttonText = 'Pay Now',
   buttonClassName = "bg-green-700 hover:bg-green-800 text-white",
   onSuccess,
@@ -31,11 +32,23 @@ export default function PaymentButton({
 }: PaymentButtonProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
 
   const handlePayment = async () => {
     try {
       setLoading(true);
       setError(null);
+      
+      // Get search ID from URL params
+      const searchId = searchParams.get('sid');
+      
+      // Enhanced metadata with search tracking
+      const enhancedMetadata = {
+        ...metadata,
+        search_uid: searchId, // Include search UID for tracking
+        timestamp: new Date().toISOString(),
+        source: 'carreb_pricing_page'
+      };
       
       // Create the request payload
       const payload: CheckoutSessionRequest = {};
@@ -51,9 +64,7 @@ export default function PaymentButton({
         payload.customer_email = customerEmail;
       }
       
-      if (metadata) {
-        payload.metadata = metadata;
-      }
+      payload.metadata = enhancedMetadata;
       
       // Call the backend API to create a checkout session
       const { url, id } = await createCheckoutSession(payload);
